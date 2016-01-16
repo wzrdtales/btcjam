@@ -1,0 +1,30 @@
+{
+  "name": "btcjam",
+  "version": "0.1.0",
+  "description": "The btcjam project.",
+  "main": "index.js",
+  "dependencies": {
+    "apricot": "git+https://github.com/silentrob/Apricot.git",
+    "bluebird": "^3.1.1",
+    "dyncol": "^0.1.6",
+    "mariasql-promise": "^1.0.0",
+    "progress": "^1.1.8",
+    "request": "^2.67.0"
+  },
+  "devDependencies": {
+    "db-migrate-mysql": "^1.1.3"
+  },
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzrdtales/btcjam.git"
+  },
+  "author": "Tobias Gurtzick <magic@wizardtales.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wzrdtales/btcjam/issues"
+  },
+  "homepage": "https://github.com/wzrdtales/btcjam#readme"
+}
