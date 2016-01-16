@@ -83,7 +83,7 @@ function worker( i ) {
   } )
   .then( function() {
 
-    bar.tick( ++completed );
+    bar.tick( 1 );
     return Promise.resolve();
   } );
 }
