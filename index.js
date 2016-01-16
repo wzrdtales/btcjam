@@ -11,7 +11,8 @@ if( process.argv.length < 3 ) {
   return;
 }
 
-var amount = Number( process.argv[2] );
+var amount = Number( process.argv[3] );
+var start = Number( process.argv[2] );
 
 var db = new MariaSQL(),
     con = db.connect(require('./database.json').dev ),
@@ -27,6 +28,7 @@ var db = new MariaSQL(),
     ),
     completed = 0;
 
+bar.tick( start );
 
 function get( url ) {
 
@@ -93,6 +95,9 @@ function worker( i ) {
 
     bar.tick( 1 );
     return Promise.resolve();
+  }, function() {
+
+    return Promise.resolve();
   } );
 }
 
@@ -104,7 +109,7 @@ function work( i ) {
 
     var promises = [];
 
-    for( var o = 0; o < 10 && i < amount + 1; ++o, ++i ) {
+    for( var o = 0; o < 50 && i < amount + 1; ++o, ++i ) {
         promises.push( worker( i ) );
     }
 
@@ -120,7 +125,7 @@ function work( i ) {
 return con
 .then( function() {
 
-  return work();
+  return work( start );
 } )
 .then( function() {
   process.exit( 0 );
