@@ -63,11 +63,19 @@ function parseUrl( url ) {
 function worker( i ) {
 
   var listing = '/listings/' + i;
-  return parseUrl( base + listing )
+  return get( base + listing )
   .then( function( doc ) {
 
-    return JSON.parse( doc.find( 'div [preload-resource=' + listing + ']' )
-    .matches[0].innerHTML );
+    var res = doc.body
+      .indexOf('<div hidden preload-resource=\'' + listing + '\'');
+
+    if( res === -1 )
+        return Promise.reject( new TypeError( 'something' ) );
+
+    res = doc.body.substring(res);
+    res = res.substring(res.indexOf('\n') + 1, res.indexOf('</div>'));
+
+    return JSON.parse( res );
   } )
   .then( function( resource ) {
 
