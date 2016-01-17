@@ -11,24 +11,42 @@ if( process.argv.length < 3 ) {
   return;
 }
 
-var amount = Number( process.argv[3] );
-var start = Number( process.argv[2] );
-
-var db = new MariaSQL(),
+var ids = [],
+    amount = 0,
+    start = 0,
+    db = new MariaSQL(),
     con = db.connect(require('./database.json').dev ),
-    base = 'https://btcjam.com',
-    bar = new ProgressBar(
-      'parsing listings [:bar :current/:total] :percent :etas',
-      {
-        acomplete: '=',
-        incomplete: ' ',
-        total: amount,
-        width: 40
-      }
-    ),
+    mode = 0;
+
+if( Number.isInteger( process.argv[2] ) ) {
+
+  if( process.argv.length < 4 ) {
+    amount = Number( process.argv[2] );
+    start = 0;
+
+    for( var i = 1; i <= amount; ++i ) {
+      ids.push( i );
+    }
+  }
+  else {
+
+    amount = Number( process.argv[3] );
+    start = Number( process.argv[2] );
+
+    for( var i = start; i <= amount; ++i ) {
+      ids.push( i );
+    }
+  }
+}
+else if( process.argv[2] === 'rescan:deleted') {
+
+  mode = 1;
+}
+
+var base = 'https://btcjam.com',
+    bar,
     completed = 0;
 
-bar.tick( start );
 
 function get( url ) {
 
@@ -71,8 +89,15 @@ function worker( i ) {
     var res = doc.body
       .indexOf('<div hidden preload-resource=\'' + listing + '\'');
 
-    if( res === -1 )
-        return Promise.reject( new TypeError( 'something' ) );
+    if( res === -1 ) {
+
+      if( doc.body.indexOf('404 - BTCjam - BTCJAM') === -1 ) {
+
+        ids.push( i );
+      }
+
+      return Promise.reject( new TypeError( 'something' ) );
+    }
 
     res = doc.body.substring(res);
     res = res.substring(res.indexOf('\n') + 1, res.indexOf('</div>'));
@@ -81,15 +106,22 @@ function worker( i ) {
   } )
   .then( function( resource ) {
 
+    var dynCol = dyncol.createQuery( resource );
     return db.query( 'INSERT INTO listing (`id`, `data`) \
-    VALUES (?, ' + dyncol.createQuery( resource ) + ');', [ i ] );
+    VALUES (?, ' + dynCol + ') ON DUPLICATE KEY UPDATE data = ' + dynCol + ';',
+    [ i ] );
   }, function( error ) {
 
-    if( error instanceof TypeError )
+    if( error instanceof TypeError ) {
+
+      var dynCol = dyncol.createQuery( {
+        deleted_listing: true
+      } );
+
       return db.query( 'INSERT INTO listing (`id`, `data`) \
-        VALUES (?, ' + dyncol.createQuery( {
-          deleted_listing: true
-        } ) + ');', [ i ] );
+        VALUES (?, ' + dynCol + ') ON DUPLICATE KEY UPDATE data = ' +
+        dynCol + ';', [ i ] );
+    }
   } )
   .then( function() {
 
@@ -109,8 +141,8 @@ function work( i ) {
 
     var promises = [];
 
-    for( var o = 0; o < 50 && i < amount + 1; ++o, ++i ) {
-        promises.push( worker( i ) );
+    for( var o = 0; o < 50 && ids.length > 0; ++o ) {
+        promises.push( worker( ids.pop() ) );
     }
 
     return Promise.all( promises )
@@ -122,9 +154,48 @@ function work( i ) {
   return Promise.resolve();
 }
 
+function getDeleted() {
+
+  return db.query( 'SELECT id FROM listing WHERE deleted = 1 ORDER BY id desc' )
+  .then( function( rows ) {
+
+    return Promise.each( rows , function( row ) {
+
+      ids.push( row.id );
+    } );
+  } );
+}
+
+function modeSelector() {
+
+  switch( mode ) {
+
+    case 1:
+      return getDeleted();
+
+    default:
+      return;
+  }
+}
+
 return con
 .then( function() {
 
+  return modeSelector();
+} )
+.then( function() {
+
+  amount = ids.length;
+  bar = new ProgressBar(
+   'parsing listings [:bar :current/:total] :percent :etas',
+   {
+     acomplete: '=',
+     incomplete: ' ',
+     total: amount,
+     width: 40
+   }
+  );
+  bar.tick( start );
   return work( start );
 } )
 .then( function() {
