@@ -19,7 +19,7 @@ exports.up = function(db) {
   return db.runSql( 'ALTER TABLE `listing` \
     ADD COLUMN `deleted` BIT(1) AS \
     (COLUMN_GET(data, \'deleted_listing\' AS unsigned integer)) \
-    PERSISTENT AFTER `deleted`;' )
+    PERSISTENT AFTER `id`;' )
   .then( function() {
 
     return db.runSql( 'ALTER TABLE `listing` \
@@ -33,19 +33,19 @@ exports.up = function(db) {
       ADD COLUMN `expire_date` datetime AS \
       (DATE_ADD(COLUMN_GET(data, \'dtclose\' as datetime), \
         INTERVAL COLUMN_GET(data, \'term_days\' as int) DAY)) \
-      PERSISTENT AFTER `deleted`;' );
+      PERSISTENT AFTER `status`;' );
   } );
 };
 
 exports.down = function(db) {
 
-  return db.removeColumn( 'listing', 'deleted' )
+  return db.removeColumn( 'listing', 'expire_date' )
   .then( function() {
 
     return db.removeColumn( 'listing', 'status' );
   } )
   .then( function() {
 
-    return db.removeColumn( 'listing', 'expire_date' );
+    return db.removeColumn( 'listing', 'deleted' );
   } );
 };
