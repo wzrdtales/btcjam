@@ -94,6 +94,7 @@ function worker( i ) {
       if( doc.body.indexOf('404 - BTCjam - BTCJAM') === -1 ) {
 
         ids.push( i );
+        bar.tick( -1 );
       }
 
       return Promise.reject( new TypeError( 'something' ) );
@@ -156,7 +157,7 @@ function work( i ) {
 
 function getDeleted() {
 
-  return db.query( 'SELECT id FROM listing WHERE deleted = 1 ORDER BY id desc' )
+  return db.query( 'SELECT id FROM listing WHERE deleted = 1' )
   .then( function( rows ) {
 
     return Promise.each( rows , function( row ) {
