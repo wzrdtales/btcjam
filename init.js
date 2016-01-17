@@ -24,7 +24,7 @@ if( Number.isInteger( parseInt( process.argv[2] ) ) ) {
     amount = Number( process.argv[2] );
     start = 0;
 
-    for( var i = 1; i <= amount + 1; ++i ) {
+    for( var i = 1; i <= amount; ++i ) {
       ids.push( i );
     }
   }
@@ -33,7 +33,7 @@ if( Number.isInteger( parseInt( process.argv[2] ) ) ) {
     amount = Number( process.argv[3] );
     start = Number( process.argv[2] );
 
-    for( var i = start; i <= amount + 1; ++i ) {
+    for( var i = start; i <= amount; ++i ) {
       ids.push( i );
     }
   }
