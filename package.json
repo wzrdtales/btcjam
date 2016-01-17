@@ -22,7 +22,7 @@
     "url": "git+https://github.com/wzrdtales/btcjam.git"
   },
   "author": "Tobias Gurtzick <magic@wizardtales.com>",
-  "license": "MIT",
+  "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/wzrdtales/btcjam/issues"
   },
