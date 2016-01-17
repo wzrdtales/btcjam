@@ -4,7 +4,10 @@ var Apricot = require('apricot').Apricot,
     Promise = require('bluebird'),
     MariaSQL = require('mariasql-promise').MariaSQL,
     dyncol = require('dyncol'),
-    ProgressBar = require('progress');
+    ProgressBar = require('progress'),
+    config = require('./database.json').dev;
+
+config.db = config.database
 
 if( process.argv.length < 3 ) {
   console.log( 'Please enter the amount to import!' );
@@ -15,7 +18,7 @@ var ids = [],
     amount = 0,
     start = 0,
     db = new MariaSQL(),
-    con = db.connect(require('./database.json').dev ),
+    con = db.connect( config ),
     mode = 0;
 
 if( Number.isInteger( parseInt( process.argv[2] ) ) ) {
