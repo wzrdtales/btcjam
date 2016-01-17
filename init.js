@@ -18,13 +18,13 @@ var ids = [],
     con = db.connect(require('./database.json').dev ),
     mode = 0;
 
-if( Number.isInteger( process.argv[2] ) ) {
+if( Number.isInteger( parseInt( process.argv[2] ) ) ) {
 
   if( process.argv.length < 4 ) {
     amount = Number( process.argv[2] );
     start = 0;
 
-    for( var i = 1; i <= amount; ++i ) {
+    for( var i = 1; i <= amount + 1; ++i ) {
       ids.push( i );
     }
   }
@@ -33,7 +33,7 @@ if( Number.isInteger( process.argv[2] ) ) {
     amount = Number( process.argv[3] );
     start = Number( process.argv[2] );
 
-    for( var i = start; i <= amount; ++i ) {
+    for( var i = start; i <= amount + 1; ++i ) {
       ids.push( i );
     }
   }
